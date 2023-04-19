@@ -113,8 +113,6 @@ function finishSteps() {
   emits('updated', __buildStatus('FINISH'))
 }
 
-let counter = 0
-
 function notifyComputePosition(reference, floater, optionsPosition) {
   const options = Object.assign(constants.DEFAULT_OPTIONS, optionsPosition)
   const updateFloater = ({ x, y }) => {
@@ -125,8 +123,6 @@ function notifyComputePosition(reference, floater, optionsPosition) {
 
   if (__vt_isfinished.value) return
   if (props.scrollToStep) {
-    console.log('Fooo', counter)
-    counter++
     moveTo.move(reference)
   }
   __vt_garbage.value = autoUpdate(reference, floater, () =>
