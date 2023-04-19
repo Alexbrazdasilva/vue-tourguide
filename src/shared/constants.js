@@ -1,9 +1,9 @@
-import { flip, offset, shift } from '@floating-ui/dom'
+import { autoPlacement, offset, shift } from '@floating-ui/dom'
 
 export const DEFAULT_OPTIONS = {
   placement: 'top',
   strategy: 'fixed',
-  middleware: [shift(), flip(), offset(10)],
+  middleware: [shift(), autoPlacement(), offset(20)],
 }
 
 export const MOVETO_OPTIONS = {

@@ -1,25 +1,29 @@
 <template>
-  <div>
-    <v-tour-step
-      v-if="!__vt_isfinished"
-      ref="__vt_step"
-      :title="currentStep.title"
-      :description="currentStep.description"
-      :is-first="isFirst"
-      :is-last="isLast"
-      @restart="restartSteps"
-      @next="nextStep"
-      @previous="prevStep"
-      @finish="finishSteps"
-    />
-  </div>
+  <v-b-tour-step
+    v-if="!__vt_isfinished"
+    ref="__vt_step"
+    :title="currentStep.title"
+    :description="currentStep.description"
+    :is-first="isFirst"
+    :is-last="isLast"
+    :class="stepClass"
+    @restart="restartSteps"
+    @next="nextStep"
+    @previous="prevStep"
+    @finish="finishSteps"
+  />
 </template>
+<script>
+export default {
+  name: 'VTour',
+}
+</script>
 <script setup>
 import { ref, computed, watchEffect, onMounted, onUnmounted, toRef } from 'vue'
 import { autoUpdate, computePosition } from '@floating-ui/dom'
 import MoveTo from 'moveto'
 
-import VTourStep from './VTourStep.vue'
+import VBTourStep from './VBTourStep.vue'
 import * as constants from '@/shared/constants'
 import { logger } from '@/shared/logger'
 
@@ -28,9 +32,29 @@ const props = defineProps({
     type: Number,
     default: 0,
   },
+  highlight: {
+    type: Boolean,
+    default: false,
+  },
+  rounded: {
+    type: Boolean,
+    default: false,
+  },
+  outlined: {
+    type: Boolean,
+    default: false,
+  },
   tour: {
     type: Array,
     default: () => [],
+  },
+  debugMode: {
+    type: Boolean,
+    default: false,
+  },
+  scrollToStep: {
+    type: Boolean,
+    default: true,
   },
 })
 
@@ -46,6 +70,14 @@ const moveTo = new MoveTo(constants.MOVETO_OPTIONS)
 const currentStep = computed(() => listTour.value[indexStep.value])
 const isFirst = computed(() => indexStep.value === 0)
 const isLast = computed(() => indexStep.value === listTour.value.length - 1)
+const stepClass = computed(() => [
+  {
+    'vt__animation-highlight': !props.debugMode && props.highlight,
+    rounded: props.rounded,
+    outlined: props.outlined,
+  },
+  'vt__card-step',
+])
 
 function __buildStatus(status) {
   return constants.DEFAULT_STATUS[status] || constants.DEFAULT_STATUS['FINISH']
@@ -70,6 +102,9 @@ function nextStep() {
 
 function restartSteps() {
   indexStep.value = 0
+  if (__vt_isfinished.value) {
+    __vt_isfinished.value = false
+  }
   emits('updated', __buildStatus('RESTARTED'))
 }
 
@@ -81,19 +116,16 @@ function finishSteps() {
 function notifyComputePosition(reference, floater, optionsPosition) {
   const options = Object.assign(constants.DEFAULT_OPTIONS, optionsPosition)
   const updateFloater = ({ x, y }) => {
-    const position = {
-      top: `${y}px`,
-      left: `${x}px`,
-    }
+    const axisPositions = { top: `${y}px`, left: `${x}px` }
 
-    Object.assign(floater.style, position)
+    Object.assign(floater.style, axisPositions)
   }
 
-  if (!__vt_isfinished.value) {
-    moveTo.move(reference)
-    computePosition(reference, floater, options).then(updateFloater)
-    emits('updated', __buildStatus('NEXT'))
-  }
+  if (__vt_isfinished.value) return
+  if (props.scrollToStep) moveTo.move(reference)
+
+  computePosition(reference, floater, options).then(updateFloater)
+  emits('updated', __buildStatus('NEXT'))
 }
 
 function autoUpdateWrapper() {
@@ -108,6 +140,15 @@ function autoUpdateWrapper() {
     })
   )
 }
+
+defineExpose({
+  currentStep: indexStep,
+  prevStep,
+  nextStep,
+  restartSteps,
+  finishSteps,
+})
+
 watchEffect(() => {
   if (indexStep.value >= 0) {
     autoUpdateWrapper()
@@ -116,10 +157,11 @@ watchEffect(() => {
 
 onMounted(() => {
   if (props.startPoint > props.tour.length) {
-    logger(
-      'warn',
-      '`start-point` property is invalid - is greater than tour length, zero will be used instead'
-    )
+    props.debugMode &&
+      logger(
+        'warn',
+        '`start-point` property is invalid - is greater than tour length, zero will be used instead'
+      )
     indexStep.value = 0
     return
   }
@@ -132,3 +174,23 @@ onUnmounted(() => {
   }
 })
 </script>
+<style scoped>
+:global(:root) {
+  --vt-primary-color: #2485bd;
+  --vt-success-color: #21ba45;
+  --vt-success-color-hovered: #169935;
+  --vt-error-color: #c10015;
+  --vt-secondary-color: #474747;
+  --vt-deactive-color: #aeaeae;
+
+  --vt-primary-color-rgb: 36, 133, 189;
+  --vt-step-bg-color: #fff;
+
+  --vt-text-primary: var(--vt-primary-color);
+  --vt-text-secondary: #4d4d4d;
+  --vt-text-white: #f8f8f8;
+
+  --vt-base-space: 16px;
+  --vt-radious-size: 8px;
+}
+</style>

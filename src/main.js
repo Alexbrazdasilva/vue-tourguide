@@ -1,5 +1,7 @@
-import { createApp } from 'vue'
 import App from './App.vue'
-import '@/style/app.sass'
+import { VBTourPlugin } from './lib'
+import { createApp } from 'vue'
 
-createApp(App).mount('#app')
+const app = createApp(App)
+
+app.use(VBTourPlugin).mount('#app')
