@@ -1,6 +1,6 @@
 {
   "name": "vue-breadcrumb-tour",
-  "private": true,
+  "private": false,
   "version": "0.1.0",
   "type": "module",
   "scripts": {
@@ -11,6 +11,7 @@
   },
   "module": "dist/vb-tour.umd.cjs",
   "main": "dist/vb-tour.js",
+  "repository": "https://github.com/Alexbrazdasilva/vue-tourguide/",
   "keywords": [
     "VueJS",
     "Vue",

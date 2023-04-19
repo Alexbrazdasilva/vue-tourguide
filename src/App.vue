@@ -37,7 +37,7 @@ const tourWrapper = ref(null)
 const myTour = [
   {
     ref: '[data-tour="1"]',
-    position: 'top',
+    position: 'right-start',
     title: 'Primeira etapa',
     description: 'lorem ipsum not dolot',
   },
@@ -51,7 +51,7 @@ const myTour = [
   },
   {
     ref: '[data-tour="3"]',
-    position: 'left-start',
+    position: 'left',
     title: 'Terceira etapa',
     description: 'lorem ipsum not dolot',
   },
